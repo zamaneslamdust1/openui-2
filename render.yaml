@@ -1,0 +1,51 @@
+# ============================================================
+# VodiWalker — Render.com Blueprint
+# با این فایل می‌تونی از بخش «Blueprint» رندر، دیپلوی خودکار بزنی
+# یا موقع ساخت Web Service دستی، این مقادیر رو به‌عنوان مرجع استفاده کن
+# ============================================================
+
+services:
+  - type: web
+    name: vodiwalker-panel
+    runtime: docker
+    plan: free                # برای دیسک دائمی حداقل Starter لازمه
+    region: frankfurt         # نزدیک‌ترین رجن به ایران
+    healthCheckPath: /health
+    autoDeploy: true
+    dockerCommand: sh -c "uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}"
+
+    # ── دیسک دائمی (فقط پلن پولی) ─────────────────────────────
+    # روی پلن Free دیسک نداریم و داده‌ها بعد از هر ری‌استارت پاک میشن.
+    # برای فعال‌سازی، دو خط زیر رو از کامنت دربیار و پلن رو عوض کن:
+    #
+    # disk:
+    #   name: vodiwalker-data
+    #   mountPath: /var/data
+    #   sizeGB: 1
+
+    envVars:
+      - key: ADMIN_USERNAME
+        sync: false           # موقع دیپلوی ازت می‌پرسه
+      - key: ADMIN_PASSWORD
+        sync: false           # رمز قوی بذار — sync:false یعنی امن
+      - key: SECRET_KEY
+        generateValue: true   # خودکار مقدار تصادفی امن می‌سازه
+      # روی پلن Free این خالی بمونه؛ روی پلن پولی با دیسک، مقدار /var/data بذار
+      - key: DATA_DIR
+        value: ""
+      # آدرس عمومی پنل — بعد از اولین دیپلوی، دامنه‌ای که رندر میده رو بذار
+      # مثال: https://vodiwalker-panel.onrender.com
+      - key: PUBLIC_BASE_URL
+        value: ""
+      # TCP proxy عمومی روی Render در دسترس نیست؛ خالی بمونه
+      - key: TCP_PUBLIC_HOST
+        value: ""
+      - key: TCP_PUBLIC_PORT
+        value: ""
+      # ربات تلگرام (اختیاری)
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_ADMIN_IDS
+        sync: false
+      - key: TELEGRAM_BOT_USERNAME
+        value: VodiWalkerBot
